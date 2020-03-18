@@ -1,0 +1,17 @@
+dn: uid=beto,ou=people,dc=unam,dc=mx
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: beto
+sn: colula
+userPassword: {SSHA}JPaZXeZFGuTw6Z41OF7ZkYy8ptQuqPoA
+loginShell: /bin/bash
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/beto
+
+dn: cn=beto,ou=groups,dc=unam,dc=mx
+objectClass: posixGroup
+cn: beto
+gidNumber: 1001
+memberUid: beto
