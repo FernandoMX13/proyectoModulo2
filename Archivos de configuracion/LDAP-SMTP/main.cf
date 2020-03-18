@@ -1,4 +1,4 @@
-# 
+# /etc/postfix/main.cf
 smtpd_banner = $myhostname ESMTP
 biff = no
 append_dot_mydomain = no
