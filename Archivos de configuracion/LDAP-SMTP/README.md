@@ -8,7 +8,7 @@
 
 Donde los archivos _ldapNombre.ldif_ corresponden a los archivos de cada usuario.
 
-# SMPT
+# SMTP
 ## Hostname: _ldap-smtp.cert.unam.mx_
 
 ## Instalación de herramientas:
