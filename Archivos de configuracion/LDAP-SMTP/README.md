@@ -4,14 +4,14 @@
 
 ## Archivos de configuración
 - base.ldif
-- ldapbeto.lidf
+- ldapbeto.ldif
 
-Donde los archivos _ldapNombre.lif_ corresponden a los archivos de cada usuario.
+Donde los archivos _ldapNombre.ldif_ corresponden a los archivos de cada usuario.
 
 # SMPT
-##Hostname: _ldap-smtp.cert.unam.mx_
+## Hostname: _ldap-smtp.cert.unam.mx_
 
-##Instalación de herramientas:
+## Instalación de herramientas:
 ### Postfix
 `apt-get install curl net-tools bash-completion wget lsof`
 
@@ -24,7 +24,7 @@ Donde los archivos _ldapNombre.lif_ corresponden a los archivos de cada usuario.
 ### Rainloop Webmail
 `curl -sL https://repository.rainloop.net/installer.php | php`
 
-##Archivos de configuración
+## Archivos de configuración
 - main.cf
 - dovecot.conf
 - 10-auth.conf
@@ -32,5 +32,5 @@ Donde los archivos _ldapNombre.lif_ corresponden a los archivos de cada usuario.
 - 10-master.conf
 
 # Apache
-##Archivos de configuración
+## Archivos de configuración
 - security.conf
