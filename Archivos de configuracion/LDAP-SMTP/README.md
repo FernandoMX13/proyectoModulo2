@@ -31,6 +31,6 @@ Donde los archivos _ldapNombre.ldif_ corresponden a los archivos de cada usuario
 - 10-mail.conf
 - 10-master.conf
 
-# Apache
-## Archivos de configuración
-- security.conf
+# Máquina
+- Archivo de configuración de apache: _security.conf_
+- iptables: _iptables.rules_
