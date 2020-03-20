@@ -18,7 +18,7 @@ Para que esta aplicación pueda funcionar correctamente, es necesario que contar
 
 - Postgres instalado en la máquina que almacenará la base datos de los sitios en Drupal 9, junto con el usuario postgres ya configurado para la creación de usuarios y bases de datos.
 
-- Haber realizado un `apt-get update` y `apt-get upgrade .y` en la máquina Debian 8, la cual es la que almacena los sitios originialmente en la versión 7.69 de Drupal.
+- Haber realizado un `apt-get update` y `apt-get upgrade -y` en la máquina Debian 8, la cual es la que almacena los sitios originialmente en la versión 7.69 de Drupal.
 
 - Si los sitios cuentan con autenticación ldap y un servidor smtp, éste debe de ser capaz de comunicarse con la máquina Debian 10.
 
