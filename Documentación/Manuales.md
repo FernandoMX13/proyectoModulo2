@@ -10,7 +10,13 @@
 
 ## Definición del proyecto
 
-Esta proyecto....
+Se trata de una herramienta divida en una serie de scripts dedicados a minimizar el contacto del usuario, y su objetivo principal es el de instalar Drupal 8.8.4 en un Debian 10, el cual tiene requisitos mínimos de funcionamiento.
+
+Además, la herramienta consta de 3 servidores: 
+- Base de datos en PostgreSQL configurado en un Debian 10
+- LDAP y SMTP configurados en un Debian 10
+- WAF configurado en un Debian 10
+- Sitios instalados y migrados en un Debian 10
 
 ## Metas y objetivos alcanzados
 
@@ -18,9 +24,10 @@ Esta proyecto....
 
 Las metas de este proyecto fueron...
 
-- Instalación y configuración de dos sitios en drupal 7.69, en conjunto de su respectiva base de datos, un servidor smtp y ldap.
-- Migración de los sitios drupal 7.69 almacenados en una equipo debian 8 a drupal 8 que se almacenarán en un equipo debian 10.
-- Instalación de un WAF en configuración de proxy inverso.
+- Instalación y configuración de dos sitios en drupal 7.69, en conjunto de su respectiva base de datos, un servidor SMTP y LDAP.
+- Migración de los sitios drupal 7.69 almacenados en una equipo Debian 8 a Drupal 8 que se almacenarán en un equipo Debian 10.
+- Instalación de un WAF en configuración de proxy inverso que provee de seguridad a los sitios actualizados.
+- Tener control de acceso a usuarios y roles específicos con privilegios a los sitios instalados.
 
 ### Objetivos alcanzados
 
