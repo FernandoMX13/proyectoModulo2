@@ -16,7 +16,7 @@ def importSiteConf():
     conn, addr = s.accept()
 
     nombre = conn.recv(1024)
-    print("Nombre del sitio: " + nombre.decode("utf-8"))
+    print("\nNombre del sitio: " + nombre.decode("utf-8"))
     conn.sendall(bytes('Nombre recibido', 'UTF-8'))
     
     contenido = conn.recv(1000000)
@@ -69,22 +69,37 @@ def installPre():
         print("Apache instalado")
     print("Instalando/verificando php")
     info = subprocess.Popen(['apt-get', 'install', 'php7.3', 'libapache2-mod-php7.3', 'php7.3-cli', 'php7.3-pgsql', 'php7.3-intl', 
-        'php7.3-mysql', 'php7.3-curl', 'php7.3-gd', 'php7.3-soap', 'php7.3-xml', 'php7.3-zip', 
+        'php7.3-mysql', 'php7.3-curl', 'php7.3-gd', 'php7.3-soap', 'php7.3-xml', 'php7.3-zip','php7.3-ldap', 
         '-y'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
-        print("No se pudo instalar php verifique conexion")
+        print("No se pudo instalar php")
         print("Abortando operacion")
         sys.exit()
     else:
         print("Php instalado")
+
+    print("Configurando php")
+    cmd = "sed -i -e 's/;extension=ldap/extension=ldap/' \
+           -i -e 's/;extension=openssl/extension=openssl/' \
+           -i -e 's/;extension=pgsql/extension=pgsql/' -i -e 's/upload_max_filesize = 2M/upload_max_filesize = 2G/'\
+           -i -e 's/post_max_size = 8M/post_max_size = 8G/' /etc/php/7.3/apache2/php.ini"
+    info = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    if info != 0:
+        print("No se pudo configurar php")
+        print("Abortando operacion")
+        sys.exit()
+    else:
+        print("Php configurado")
+
     print("Instalando git")
-    info = subprocess.Popen(['apt-get','install','git','-y'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    info = subprocess.Popen(['apt-get','install','git','-y']).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
         print("No se puede instalar git")
         print("Abortando operacion")
         sys.exit()
     else:
         print("Git instalado")
+
     print("Instalando/verificando drush")
     info = subprocess.Popen(['wget','https://github.com/drush-ops/drush/releases/download/8.3.2/drush.phar', '-q','--show-progress']).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
@@ -115,6 +130,15 @@ def installPre():
         sys.exit()
     else:
         print("Cliente de postgresql instalado")
+
+    print("Instalando OpenSSL")
+    info = subprocess.Popen(['apt-get','install','openssl','-y'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    if info != 0:
+        print("No se puede instalar OpenSSL")
+        print("Abortando operacion")
+        sys.exit()
+    else:
+        print("OpenSSL instalado")
     print("Descargando Drupal")
     info = subprocess.Popen(['drush', 'dl', 'drupal-8.8.3', '-y'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
@@ -123,21 +147,35 @@ def installPre():
         sys.exit()
     else:
         print("Drupal descargado")
+    """"
+    print("Instalando composer")
+    info = subprocess.Popen(['apt-get','install','composer','-y'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    if info != 0:
+        print("No se puede instalar composer")
+        print("Abortando operacion")
+        sys.exit()
+    else:
+        print("composer instalado")
+    """
 
 def installDrupal(nombreSitio):
+    s1 = ""
     f = open(nombreSitio, "r")
     for linea in f:
         if linea.lower().find("documentroot") != -1:
             pat = re.compile(".*#.*documentroot.*")
             result = pat.match(linea.lower())
             if(result == None):
-                s1 = linea.split()
-                s = s1[1].split('#')
-                cad = s[0].replace(' ','')
+                l1 = linea.split()
+                for j in l1[1:]:
+                    s1+=j+' '
+                s = s1.split('#')
+                cad = s[0].rstrip().lstrip()
+                print(cad)
                 break
     f.close()
     print("Moviendo Drupal al sitio")
-    info = subprocess.Popen(['cp', '-r', 'drupal-8.8.3/', cad]).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    info = subprocess.Popen(['cp', '-r', 'drupal-8.8.3/', cad],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
         print("No se pudo mover drupal")
         print("Abortando operacion")
@@ -161,45 +199,71 @@ def installDrupal(nombreSitio):
     info = subprocess.Popen(['drush', 'si','standard',url, '-r', cad, '-y'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
     l = info.stdout.read().decode()
     l1 = l.find("Installation complete.")
-    slicObj = slice(l1,l1+70)
-    print(">> "+ l[slicObj])
     if l1 == -1:
         print("Problemas con la instalaciion")
         print("Abortando operacion")
         sys.exit()
     else:
         print("Drupal instalado")
-
+        print("[!] " + l[l1:l1+70])
     s1 = nombreSitio.split('/')
-    print("Activando sitio.")
-    info = subprocess.Popen(['a2ensite', s1[-1]]).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    print("Activando modulos y sitio.")
+    info = subprocess.Popen(['a2ensite', s1[-1]],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
         print("No se pudo activar la pagina")
         print("Abortando operacion")
         sys.exit()
-    info = subprocess.Popen(['a2enmod', 'rewrite']).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    info = subprocess.Popen(['a2enmod', 'rewrite'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
-        print("Error de activacion del sitio")
+        print("Error de activacion del modulo rewrite")
+        sys.exit()
+    info = subprocess.Popen(['a2enmod', 'ssl'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    if info != 0:
+        print("Error de activacion del modulo ssl")
+        sys.exit()
+    info = subprocess.Popen(['a2enmod', 'headers'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    if info != 0:
+        print("Error de activacion del modulo headers")
         sys.exit()
     print("Reiniciando pagina.")
     info = subprocess.Popen(['/etc/init.d/apache2', 'restart']).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
         print("Error Reiniciando apache")
         sys.exit()
+    f = open(nombreSitio, "r")
+    s1 = ""
+    for linea in f:
+        if linea.lower().find("servername") != -1:
+            pat = re.compile(".*#.*servername.*")
+            result = pat.match(linea.lower())
+            if(result == None):
+                l1 = linea.split()
+                for j in l1[1:]:
+                    s1+=j+' '
+                s = s1.split('#')
+                cad = s[0].rstrip().lstrip()
+                break
+    print("Actualizando /etc/hosts.")
+    cmd = "echo '127.0.0.1 "+cad+"' >> /etc/hosts"
+    info = subprocess.Popen(cmd,shell=True).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    if info != 0:
+        print("Error al actualizar hosts")
+        sys.exit()
+    f.close()
+
+
 def deleteDL():
     print("Eliminando descargable")
-    info = subprocess.Popen(['rm', '-r', 'drupal-8.8.3', '-y'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+    info = subprocess.Popen(['rm', '-r', 'drupal-8.8.3/']).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
     if info != 0:
         print("Problemas al quitar el descargable")
         print("Abortando operacion")
         sys.exit()
     else:
         print("Descargable eliminado")
+
 installPre()
 nombreSitio1, nombreSitio2 = importSiteConf()
-print(nombreSitio1)
-print(nombreSitio2)
-sys.exit()
 installDrupal(nombreSitio1)
 #installDrupal(nombreSitio2)
 deleteDL()

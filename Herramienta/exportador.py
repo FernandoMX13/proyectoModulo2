@@ -7,6 +7,27 @@ import socket
 import re
 import time
 import struct
+import datetime 
+
+def backUP(DOC,sitio):
+	s1 = ""
+	f = open(DOC, "r")
+	for linea in f:
+	    if linea.lower().find("documentroot") != -1:
+	        pat = re.compile(".*#.*documentroot.*")
+	        result = pat.match(linea.lower())
+	        if(result == None):
+	            l1 = linea.split()
+	            for j in l1[1:]:
+	                s1+=j+' '
+	            s = s1.split('#')
+	            cad = s[0].rstrip().lstrip()
+	            break
+	f.close()
+	dateTimeObj = datetime.datetime.now()
+	timestampStr = dateTimeObj.strftime("%H_%M_%S_%f-%d-%b-%Y.tar.gz")
+	subprocess.Popen(['drush', 'archive-dump', '--destination=/var/www/bck'+sitio+timestampStr,'-r',cad]).wait()
+	print("Respaldo Creado")
 
 def downloadDrush(type):
 	if(type):
@@ -86,25 +107,25 @@ verificandoDrush()
 verificandoGit()
 """
 flag = False
-toInstall = subprocess.Popen(['drush', 'pm-list', '--status=Enabled', '--fields=name', '-r', '/var/www/drupal'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-s1 = toInstall.stdout.read().decode().split('(') 
-for s in s1:
-	cad = s.split(')')
-	if (flag):
-		print(">"+cad[0]+"<")
-	flag = True
 pat = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 IP = input('Ingrese la ip del host:\n')
 result = pat.match(IP)
 while result == None:
 	IP = input('[!] Ingrese una ip correcta:\n')
 	result = pat.match(IP)
-DOC = input('Ingrese el archivo de configracion del sitio 1\n')
-while(os.path.isfile("/etc/apache2/sites-available/"+DOC) == False):
-    DOC = input("[!] Ingrese solo el nombre del archivo de configuracion del sitio (Ubicado en /etc/apache2/sites-available/)\n")
+
+DOC = input('Ingrese la ruta absoluta del archivo de configuración del sitio1\n')
+while(os.path.isfile("DOC) == False):
+    DOC = input("[!] Ingresa la ruta completa del archivo de configuración.\n")
+
+DOC2 = input('Ingrese la ruta absoluta del archivo de configuración del sitio1\n')
+while(os.path.isfile("DOC2) == False):
+    DOC2 = input("[!] Ingresa la ruta completa del archivo de configuración.\n")
 """
 IP = "192.168.216.145"
 DOC = '/etc/apache2/sites-available/drupal.conf'
 DOC2 = '/etc/apache2/sites-available/drupal2.conf'
+backUP(DOC,"sitio1")
+#backUP(DOC2,"sitio2")
 exportSiteConfig(IP,DOC,DOC2)
 print("\nSe termino de enviar los archivos de configuracion.")
