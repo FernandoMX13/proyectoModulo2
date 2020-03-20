@@ -1,6 +1,6 @@
 # Manuales
 
-# Integrantes
+## Integrantes
 
 - Ayala San Juan Luis Antonio
 - Colula Morales José Alberto
