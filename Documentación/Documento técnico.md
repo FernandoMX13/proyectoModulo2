@@ -14,7 +14,7 @@ Para que esta aplicación pueda funcionar correctamente, es necesario contar con
 
 - Python 3.4 o superior instalado en la máquina que almacenará los sitios en Drupal 8.
 
-- Postgres instalado en la máquina que almacenará la base datos de los sitios en Drupal 9, junto con el usuario postgres ya configurado para la creación de usuarios y bases de datos.
+- Postgres instalado en la máquina que almacenará la base datos de los sitios en Drupal 8, junto con el usuario postgres ya configurado para la creación de usuarios y bases de datos.
 
 - Haber realizado un `apt-get update` y `apt-get upgrade -y` en la máquina Debian 8, la cual es la que almacena los sitios originialmente en la versión 7.69 de Drupal.
 
@@ -474,9 +474,9 @@ La ruta de los archivos de configuración están establecidos en la línea de `D
 
 Esta aplicación consta de varios scripts, los cuales deben de ser ejecutados en los correspondientes equipos.
 
-Para el equipo que almacena la base de datos, se debe de ejecutar el script `nombre`, el cual realiza la configuración de los bases de datos, usuarios y accesos a éstas.
+Para el equipo que almacena la base de datos, se debe de ejecutar el script `scriptPostgreSQL.sh`, el cual realiza la configuración de los bases de datos, usuarios y accesos a éstas.
 
-Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración, así como la recepción de archivos. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos.
+Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración los cuales son php, apache, cliente de postgres,drush y drupal, así como la recepción de archivos de configuracion de los sitios que se van a migrar. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos, ademas realiza el respaldo de la base de datos.
 
 migracion.sh es el codigo en cargado de realizar la migracion del contenido de la base de datos para realizar esto el codigo
 pide los datos al usuario de la base de datos que va ser migrada 
