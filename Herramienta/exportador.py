@@ -58,7 +58,7 @@ def verificandoGit():
 		git = subprocess.Popen(['git'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 	except FileNotFoundError:
 		print("Instalando git")
-		subprocess.Popen(['apt-get','install','git'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+		subprocess.Popen(['apt-get','install','git', '-y']).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
 	print("Git instalado")	
 
 def exportSiteConfig(IP,DOC,DOC2):
@@ -105,7 +105,7 @@ def exportSiteConfig(IP,DOC,DOC2):
 
 verificandoDrush()
 verificandoGit()
-"""
+
 flag = False
 pat = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 IP = input('Ingrese la ip del host:\n')
@@ -115,17 +115,18 @@ while result == None:
 	result = pat.match(IP)
 
 DOC = input('Ingrese la ruta absoluta del archivo de configuración del sitio1\n')
-while(os.path.isfile("DOC) == False):
+while(os.path.isfile(DOC) == False):
     DOC = input("[!] Ingresa la ruta completa del archivo de configuración.\n")
 
 DOC2 = input('Ingrese la ruta absoluta del archivo de configuración del sitio1\n')
-while(os.path.isfile("DOC2) == False):
+while(os.path.isfile(DOC2) == False):
     DOC2 = input("[!] Ingresa la ruta completa del archivo de configuración.\n")
 """
-IP = "192.168.216.145"
-DOC = '/etc/apache2/sites-available/drupal.conf'
-DOC2 = '/etc/apache2/sites-available/drupal2.conf'
+IP = "10.0.0.3"
+DOC = '/etc/apache2/sites-available/drupal7-11.conf'
+DOC2 = '/etc/apache2/sites-available/drupal7-2.conf'
+"""
 backUP(DOC,"sitio1")
-#backUP(DOC2,"sitio2")
+backUP(DOC2,"sitio2")
 exportSiteConfig(IP,DOC,DOC2)
 print("\nSe termino de enviar los archivos de configuracion.")
