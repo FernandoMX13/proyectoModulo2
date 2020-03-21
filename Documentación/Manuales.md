@@ -42,6 +42,8 @@ Los objetivos alcanzados fueron:
 - Matei Cezar, M. (2017, 12 octubre). Install a Complete Mail Server with Postfix and Webmail in Debian 9. Recuperado 20 marzo, 2020, de https://www.tecmint.com/install-postfix-mail-server-with-webmail-in-debian/
 - Debian 10 Configuration Tutorial : Server World. (2019, 26 julio). Recuperado 20 marzo, 2020, de https://www.server-world.info/en/note?os=Debian_10
 - Debian 10 Configuration Tutorial : Server World. (2019, 26 julio). Recuperado 20 marzo, 2020, de https://www.server-world.info/en/note?os=Debian_10
+- Mauricio Dinarte, M. D. (s.f.). Writing your first Drupal migration. Recuperado 21 marzo, 2020, de https://agaric.coop/blog/writing-your-first-drupal-migration
+-COPIAS DE SEGURIDAD DE SITIOS DRUPAL CON DRUSH. (s.f.). Recuperado 21 marzo, 2020, de https://www.solucionex.com/blog/copias-de-seguridad-de-sitios-drupal-con-drush
 
 
 
