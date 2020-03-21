@@ -541,6 +541,55 @@ Para el equipo que almacena la base de datos, se debe de ejecutar el script `nom
 
 Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración, así como la recepción de archivos. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos.
 
+Para el equipo que almacena la base de datos, se debe de ejecutar el script `scriptPostgreSQL.sh`, el cual realiza la configuración de los bases de datos, usuarios y accesos a éstas.
+
+Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración los cuales son php, apache, cliente de postgres,drush y drupal, así como la recepción de archivos de configuracion de los sitios que se van a migrar. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos, ademas realiza el respaldo de la base de datos.
+
+migracion.sh es el codigo en cargado de realizar la migracion del contenido de la base de datos para realizar esto el codigo
+pide los datos al usuario de la base de datos que va ser migrada 
+```bash
+read -p "Ingresa usuario de base de datos [drupaluser]: " name
+name=${name:-drupaluser}
+echo $name
+read -p "Ingresa la contrasena [Hola123.,]: " pas
+pas=${pas:-Hola123.,}
+echo $pas
+read -p "Ingresa ip [10.0.0.2]: " ip
+ip=${ip:-10.0.0.2}
+echo $ip
+read -p "Ingresa base de datos [drupal711]: " db
+db=${db:-drupal711}
+echo $db
+read -p "Ingresa ruta de drupal [/var/www/drupal7.11]: " ruta
+ruta=${ruta:-/var/www/drupal7.11}
+echo $ruta
+```
+Se le asignan los permisos a la carpeta de drupal y se le cambian el usuario para que su nuevo usuario sea www-data:www-data
+```bash
+cd $ruta
+chown www-data:www-data -R $ruta
+find $ruta -type f -exec chmod -v 644 {} +
+find $ruta -type d -exec chmod -v 755 {} +
+```
+Desactiva css y js de drupal para que la pagina se vea bien cuando se muestre en el navegador
+```bash
+drush -y config-set system.performance css.preprocess 0
+drush -y config-set system.performance js.preprocess 0
+```
+Se activan los modulos para la migración de drupal mediante drush
+```bash
+drush en migrate_upgrade -y
+drush en migrate_plus -y
+drush en migrate_tools -y
+```
+Se migra el contenido de la base de datos y se revisa el estado de la migración 
+```bash
+drush migrate-upgrade --legacy-db-url=pgsql://$name:$pas@$ip/db --legacy-root=http://$ip --configure-only
+drush ms
+drush mi --all
+drush ms
+```
+
 ### Configuración de Apache
 
 Los archvivos correspondientes a los sitios de drupal son llamados "drupal7-x.conf", donde "x" corresponde al número de sitio.
