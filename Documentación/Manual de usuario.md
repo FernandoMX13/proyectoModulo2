@@ -13,6 +13,7 @@ Esta herramienta se debe de ejecutar en dos equipos de cómputo:
 #### Requisitos: 
 - Tener instalado la útlima versión de pyhton.
 - Una versión de cliente de PostgreSQL versión 11.
+- Conexión a internet.
 
 En una shell, con permisos de root, ejecutar el programa de la siguiente manera:
 ```bash
@@ -22,8 +23,20 @@ En una shell, con permisos de root, ejecutar el programa de la siguiente manera:
 ### Debian 10
 #### Requisitos: 
 - Tener instalado la útlima versión de pyhton.
-- Salida a internet.
-- En una shell, con permisos de root, ejecutar el programa de la siguiente manera:
+- Conexión a internet.
+
+En una shell, con permisos de root, ejecutar el programa de la siguiente manera:
 ```bash
 # python3 importador.py
+```
+
+### Debian 10 (Bases de Datos)
+#### Requisitos
+- Tener instalado PostgreSQL y un cliente de éste.
+- Tener instalado php y php-pgsql.
+- Tener el usuario _postgres_ habilitado.
+
+En una shell, ejecutar el programa de la siguiente manera:
+```bash
+# ./scriptPostgreSQL.sh
 ```
