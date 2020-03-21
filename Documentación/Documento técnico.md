@@ -14,7 +14,7 @@ Para que esta aplicación pueda funcionar correctamente, es necesario contar con
 
 - Python 3.4 o superior instalado en la máquina que almacenará los sitios en Drupal 8.
 
-- Postgres instalado en la máquina que almacenará la base datos de los sitios en Drupal 8, junto con el usuario postgres ya configurado para la creación de usuarios y bases de datos.
+- Postgres instalado en la máquina que almacenará la base datos de los sitios en Drupal 9, junto con el usuario postgres ya configurado para la creación de usuarios y bases de datos.
 
 - Haber realizado un `apt-get update` y `apt-get upgrade -y` en la máquina Debian 8, la cual es la que almacena los sitios originialmente en la versión 7.69 de Drupal.
 
@@ -270,7 +270,70 @@ Una vez realizado estas configuraciones, tendremos listo nuestro servidor SMTP.
 
 #### WAF
 
-EDGAAAAAR!!!!
+Como Web Application Firewall se utilizó el software modsecurity en configuración modo inverso con apache2.
+Para que el WAF funcionara en modo inverso fue necesario configurar un virtual host para cada sitio para que actuaran como proxy en un servidor dedicado. A continuación podemos ver el archivo de configuración en el que destaca que se tiene activadas las directivas de ProxyPassReverse, lo que esta directiva hace es permitir que el servidor trabaje como proxy inverso en donde apunta a la ip del host en donde se encuentra drupal 8 en una debian 10.
+También podemos ver que que se hace una redirección del puerto 80 al puerto 443, los certificados se guardan en este servidor y se activan las directivas de SSLEngine y SSLProxyEngine.
+```
+<VirtualHost *:80>
+	ServerName alegrosito1.cert.unam.mx
+	Redirect permanent / https://alegrosito1.cert.unam.mx/
+</VirtualHost>
+<VirtualHost *:443>
+	ServerName alegrosito1.cert.unam.mx
+	ServerAdmin becarios@cert.unam.mx
+	
+	ProxyPreserveHost	On
+	ProxyPass			/	http://10.0.0.3/
+	ProxyPassReverse	/	http://10.0.0.3/
+
+	SSLEngine On
+	SSLProxyEngine On
+
+	SSLCertificateFile "/etc/ssl/certs/alegrosito1.crt"
+	SSLCertificateKeyFile "/etc/ssl/private/alegrosito1.key"
+
+	ErrorLog ${APACHE_LOG_DIR}/errorSite1.log
+	CustomLog ${APACHE_LOG_DIR}/accessSite1.log combined
+</VirtualHost>
+```
+
+Posteriormente se tuvo que instalar el módulo libapache2-modsecurity sobre este mismo servidor.
+Una vez instalado es necesario configurarlo, para ello copiamos la configuración recomendada que se instala por defecto
+
+```
+mv /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
+```
+
+Modificamos el archivo que copiamos para que la directiva SecRuleEngine DetectOnly quede como
+
+```
+SecRuleEngine On
+```
+
+Ahora modificamos el archivo /etc/apache2/mods-available/security2.conf
+
+```
+<IfModule security2_module>
+	# Default Debian dir for modsecurity's persistent data
+	SecDataDir /var/cache/modsecurity
+
+	# Include all the *.conf files in /etc/modsecurity.
+	# Keeping your local configuration in that directory
+	# will allow for an easy upgrade of THIS file and
+	# make your life easier
+        IncludeOptional /etc/modsecurity/*.conf
+
+	# Include OWASP ModSecurity CRS rules if installed
+	IncludeOptional /usr/share/modsecurity-crs/*.load
+	IncludeOptional /usr/share/modsecurity-crs/rules/.*[^INITIALIZATION].conf
+</IfModule>
+```
+
+Con la siguiente directiva incluimos todos los archivos de configuración que nos protegen de distintos ataques como XSS, SQLi, CST por mencionar algunos. Estas configuraciones se instalan por defecto pero no se añaden a nuestras reglas de filtrado.
+
+```
+IncludeOptional /usr/share/modsecurity-crs/rules/.*[^INITIALIZATION].conf
+```
 
 #### Drupal .htaccess
 
@@ -474,60 +537,9 @@ La ruta de los archivos de configuración están establecidos en la línea de `D
 
 Esta aplicación consta de varios scripts, los cuales deben de ser ejecutados en los correspondientes equipos.
 
-Para el equipo que almacena la base de datos, se debe de ejecutar el script `scriptPostgreSQL.sh`, el cual realiza la configuración de los bases de datos, usuarios y accesos a éstas.
+Para el equipo que almacena la base de datos, se debe de ejecutar el script `nombre`, el cual realiza la configuración de los bases de datos, usuarios y accesos a éstas.
 
-Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración los cuales son php, apache, cliente de postgres,drush y drupal, así como la recepción de archivos de configuracion de los sitios que se van a migrar. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos, ademas realiza el respaldo de la base de datos.
-
-migracion.sh es el codigo en cargado de realizar la migracion del contenido de la base de datos para realizar esto el codigo
-pide los datos al usuario de la base de datos que va ser migrada 
-```bash
-read -p "Ingresa usuario de base de datos [drupaluser]: " name
-name=${name:-drupaluser}
-echo $name
-
-read -p "Ingresa la contrasena [Hola123.,]: " pas
-pas=${pas:-Hola123.,}
-echo $pas
-
-read -p "Ingresa ip [10.0.0.2]: " ip
-ip=${ip:-10.0.0.2}
-echo $ip
-
-read -p "Ingresa base de datos [drupal711]: " db
-db=${db:-drupal711}
-echo $db
-
-read -p "Ingresa ruta de drupal [/var/www/drupal7.11]: " ruta
-ruta=${ruta:-/var/www/drupal7.11}
-echo $ruta
-```
-Se le asignan los permisos a la carpeta de drupal y se le cambian el usuario para que su nuevo usuario sea www-data:www-data
-```bash
-cd $ruta
-chown www-data:www-data -R $ruta
-find $ruta -type f -exec chmod -v 644 {} +
-find $ruta -type d -exec chmod -v 755 {} +
-```
-Desactiva css y js de drupal para que la pagina se vea bien cuando se muestre en el navegador
-```bash
-drush -y config-set system.performance css.preprocess 0
-drush -y config-set system.performance js.preprocess 0
-```
-Se activan los modulos para la migración de drupal mediante drush
-```bash
-drush en migrate_upgrade -y
-drush en migrate_plus -y
-drush en migrate_tools -y
-
-```
-Se migra el contenido de la base de datos y se revisa el estado de la migración 
-```bash
-drush migrate-upgrade --legacy-db-url=pgsql://$name:$pas@$ip/db --legacy-root=http://$ip --configure-only
-drush ms
-drush mi --all
-drush ms
-```
-
+Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración, así como la recepción de archivos. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos.
 
 ### Configuración de Apache
 
