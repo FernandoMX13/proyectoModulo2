@@ -537,16 +537,13 @@ La ruta de los archivos de configuración están establecidos en la línea de `D
 
 Esta aplicación consta de varios scripts, los cuales deben de ser ejecutados en los correspondientes equipos.
 
-Para el equipo que almacena la base de datos, se debe de ejecutar el script `nombre`, el cual realiza la configuración de los bases de datos, usuarios y accesos a éstas.
-
-Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración, así como la recepción de archivos. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos.
-
 Para el equipo que almacena la base de datos, se debe de ejecutar el script `scriptPostgreSQL.sh`, el cual realiza la configuración de los bases de datos, usuarios y accesos a éstas.
 
 Al ejecutarse el script de `importador.py` en la máquina que almacenará los sitios en sus versiones de Debian 10, ésta realiza una instalación de los paquetes necesarios para poder realizar la migración los cuales son php, apache, cliente de postgres,drush y drupal, así como la recepción de archivos de configuracion de los sitios que se van a migrar. A su vez, en el equipo Debian 8 que contiene los sitios, se ejecuta el script `exportador.py` el cual manda al Debian 10 todos los archivos, ademas realiza el respaldo de la base de datos.
 
-migracion.sh es el codigo en cargado de realizar la migracion del contenido de la base de datos para realizar esto el codigo
-pide los datos al usuario de la base de datos que va ser migrada 
+`migracion.sh` es el codigo en cargado de realizar la migracion del contenido de la base de datos para realizar esto el codigo
+pide los datos al usuario de la base de datos que va ser migrada
+
 ```bash
 read -p "Ingresa usuario de base de datos [drupaluser]: " name
 name=${name:-drupaluser}
