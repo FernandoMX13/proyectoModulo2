@@ -14,7 +14,7 @@ Para que esta aplicación pueda funcionar correctamente, es necesario contar con
 
 - Python 3.4 o superior instalado en la máquina que almacenará los sitios en Drupal 8.
 
-- Postgres instalado en la máquina que almacenará la base datos de los sitios en Drupal 9, junto con el usuario postgres ya configurado para la creación de usuarios y bases de datos.
+- Postgres instalado en la máquina que almacenará la base datos de los sitios en Drupal 8, junto con el usuario postgres ya configurado para la creación de usuarios y bases de datos.
 
 - Haber realizado un `apt-get update` y `apt-get upgrade -y` en la máquina Debian 8, la cual es la que almacena los sitios originialmente en la versión 7.69 de Drupal.
 
@@ -710,3 +710,41 @@ host    all             all             ::1/128                 md5
 #host    replication     all             ::1/128                 md5
 ```
 
+## Lista Modulos Instalados en Sitios
+
+```
+drush en term_search -y
+drush en ctools -y
+drush en css_editor -y
+drush en datetime -y
+drush en google_analytics -y
+drush en feeds -y
+drush en event_log -y
+drush en workflow -y
+drush en entityfilter -y
+drush en ckeditor -y
+drush en galleryformatter -y
+drush jquery_update -y
+drush en popup_message -y
+drush en submenutree -y
+drush en simple_ldap -y
+drush en smtp -y
+drush en i18n -y
+drush en zen -y
+drush en views -y
+drush en variable -y
+drush en metatag -y
+drush en rules -y
+drush en captcha -y
+drush en site_map -y
+drush en token -y
+drush en token_filter -y 
+drush en panels -y
+```
+Modulo Agregado:
+
+```
+drush en media -y
+```
+
+Este modulo se agrego puesto que este facilita la carga de archivos, y contenido ultimedia al servidor para lograr integrar este contenido a las páginas web.

@@ -47,11 +47,7 @@ Los objetivos alcanzados fueron:
 - Drupal. (s.f.-b). Access to this page has been denied.. Recuperado 21 marzo, 2020, de https://www.drupal.org/docs/8/upgrade/upgrade-using-drush
 - Drupal. (s.f.-c). Access to this page has been denied.. Recuperado 21 marzo, 2020, de https://www.drupal.org/docs/8/upgrade
 
-
-
-Apóyense de esta herramienta, pues deben de ir en formato APA: 
-- https://www.scribbr.es/detector-de-plagio/generador-apa/
-
-Formato markdown:
-- https://github.com/victorhtorres/Markdown/blob/master/README.md
-- https://github.com/aigora/punto_inicio/wiki/ANEXO:-C%C3%B3mo-dar-formato-al-texto-del-archivo-README.md.-Markdown
+- Download & Extend modules. (s.f.). Recuperado 20 marzo, 2020, de https://www.drupal.org/project/project_module
+- Access to this page has been denied.. (s.f.). Recuperado 20 marzo, 2020, de https://www.drupal.org/
+- Access to this page has been denied.. (2018, 28 septiembre). Recuperado 20 marzo, 2020, de https://www.drupal.org/docs/7/backing-up-and-migrating-a-site/migrating-a-site
+- Home - Drush docs. (s.f.). Recuperado 20 marzo, 2020, de https://docs.drush.org/en/master/
