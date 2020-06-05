@@ -7,9 +7,22 @@ import socket
 import re
 import time
 import struct
-import datetime 
+import datetime
+import subprocess
+import threading
+import sys
+
+configuracionsitio1 = "/etc/apache2/sites-available/drupal.conf"
+configuracionsitio2 = "/etc/apache2/sites-available/drupal2.conf"
+ubicacionHtaccessSitio1 = "/var/www/drupal/.htaccess"
+ubicacionHtaccessSitio2 = "/var/www/drupal2/.htaccess"
+confifuracionApache = "/etc/apache2/apache2.conf"
+ipServidorNuevo = "192.168.216.145"
 
 def backUP(DOC,sitio):
+	print("\t[-] Creando respaldo del " + sitio)
+	t = threading.Thread(target=spin)
+	t.start()
 	s1 = ""
 	f = open(DOC, "r")
 	for linea in f:
@@ -27,9 +40,13 @@ def backUP(DOC,sitio):
 	dateTimeObj = datetime.datetime.now()
 	timestampStr = dateTimeObj.strftime("%H_%M_%S_%f-%d-%b-%Y.tar.gz")
 	subprocess.Popen(['drush', 'archive-dump', '--destination=/var/www/bck'+sitio+timestampStr,'-r',cad]).wait()
-	print("Respaldo Creado")
+	t.do_run = False
+	t.join()
+	print("\t[*] Respaldo para el " + sitio + " creado.")
 
 def downloadDrush(type):
+	t = threading.Thread(target=spin)
+	t.start()
 	if(type):
 		comands = ["/usr/local/sbin/drush","/usr/local/bin/drush",
 		"/usr/sbin/drush", "/usr/bin/drush","/sbin/drush","/bin/drush"]
@@ -39,19 +56,20 @@ def downloadDrush(type):
 	subprocess.Popen(['wget','https://github.com/drush-ops/drush/releases/download/8.3.2/drush.phar'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
 	subprocess.Popen(['chmod','+x','drush.phar'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
 	subprocess.Popen(['mv','drush.phar','/usr/bin/drush'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+	t.do_run = False
+	t.join()
 
 def verificandoDrush():
 	try:
 		drush = subprocess.Popen(['drush','--version'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 		version = drush.stdout.read().decode().find('8.3.2')
 		if (version == -1 ):
-			print("Actualizando drush")
+			print("\t[-] Actualizando drush")
 			downloadDrush(True)
 	except FileNotFoundError:
-		print("Instalando drush")
+		print("\t[-] Instalando drush")
 		downloadDrush(False)
-	print("Drush instalado/actualizado")
-	
+	print("\t[*] Drush esta instalado yactualizado")
 
 def verificandoGit():
 	try:
@@ -61,72 +79,90 @@ def verificandoGit():
 		subprocess.Popen(['apt-get','install','git', '-y']).wait()#,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
 	print("Git instalado")	
 
-def exportSiteConfig(IP,DOC,DOC2):
-	f = open (DOC, "rb")
-	l = f.read(1000000)
-	f2 = open (DOC2, "rb")
-	l2 = f2.read(1000000)
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	connected = False
-	print("Esperando conexion para mandar archivo", end = '', flush=True)
-	while not connected:
-		try:
-			time.sleep(1)
-			s.connect((IP,1331))
-			connected = True
-		except Exception as e:
-			print(". ", end = '', flush=True)
-	s.sendall(bytes(DOC, 'UTF-8'))
-	data = s.recv(1024)
-	print ("\n\nRespuesta: " + data.decode("utf-8"))
+def spinning_cursor():
+    while True:
+        for cursor in '|/-\\':
+            yield cursor
 
-	s.sendall(l)
-	data = s.recv(1024)
-	print ("Respuesta: " + data.decode("utf-8"))
+def spin():
+    t = threading.currentThread()
+    spinner = spinning_cursor()
+    while getattr(t, "do_run", True):
+        print(next(spinner),end = '')
+        sys.stdout.flush()
+        time.sleep(0.1)
+        print('\b',end = '')
 
-	s.sendall(bytes(' ', 'UTF-8'))
-	data = s.recv(1024)
-	print ("Respuesta: " + data.decode("utf-8"))
+def exportSiteConfig():
+	print("\t[-]Obteniendo y comprimiendo archivos.")
+	t = threading.Thread(target=spin)
+	t.start()
 
-	s.sendall(bytes(DOC2, 'UTF-8'))
-	data = s.recv(1024)
-	print ("\n\nRespuesta: " + data.decode("utf-8"))
+	cmd = "mkdir .tmp"
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
 
-	s.sendall(l2)
-	data = s.recv(1024)
-	print ("Respuesta: " + data.decode("utf-8"))
+	cmd = "cp {0} .tmp/sitio1.conf".format(configuracionsitio1)
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
 
-	s.sendall(bytes(' ', 'UTF-8'))
-	data = s.recv(1024)
-	print ("Respuesta: " + data.decode("utf-8"))
-	f.close()
-	f2.close()
-	s.close()
+	cmd = "cp {0} .tmp/sitio2.conf".format(configuracionsitio3)
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
 
-verificandoDrush()
-verificandoGit()
+	cmd = "cp {0} .tmp/htaccess1".format(ubicacionHtaccessSitio1)
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+
+	cmd = "cp {0} .tmp/htaccess2".format(ubicacionHtaccessSitio2)
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+
+	cmd = "cp {0} .tmp/configuracion".format(confifuracionApache)
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+
+	cmd = "echo '{0}\n{1}\n{2}\n{3}\n{4}\n' > .tmp/ubicaciones"\
+	.format(configuracionsitio1,configuracionsitio3,ubicacionHtaccessSitio1,ubicacionHtaccessSitio2,confifuracionApache)
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+
+	cmd = "tar -czvf .archivosConfiguracion.tar.gz .tmp/"
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+
+	t.do_run = False
+	print("\t[*]Archivos comprimidos.\n\t[-]Mandando archivos al " + ipServidorNuevo)
+
+	cmd = "scp -P 1331 .archivosConfiguracion.tar.gz root@{0}:/tmp/archivosConfiguracion.tar.gz".format(ipServidorNuevo)
+	info = subprocess.Popen(cmd, shell=True).wait()
+
+	cmd = "rm -r .tmp"
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+
+	cmd = "rm .archivosConfiguracion.tar.gz"
+	info = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).wait()
+	print("\t[*] Archivos enviados.")
 
 flag = False
-pat = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
-IP = input('Ingrese la ip del host:\n')
-result = pat.match(IP)
-while result == None:
-	IP = input('[!] Ingrese una ip correcta:\n')
-	result = pat.match(IP)
-
-DOC = input('Ingrese la ruta absoluta del archivo de configuración del sitio1\n')
-while(os.path.isfile(DOC) == False):
-    DOC = input("[!] Ingresa la ruta completa del archivo de configuración.\n")
-
-DOC2 = input('Ingrese la ruta absoluta del archivo de configuración del sitio1\n')
-while(os.path.isfile(DOC2) == False):
-    DOC2 = input("[!] Ingresa la ruta completa del archivo de configuración.\n")
-"""
-IP = "10.0.0.3"
-DOC = '/etc/apache2/sites-available/drupal7-11.conf'
-DOC2 = '/etc/apache2/sites-available/drupal7-2.conf'
-"""
-backUP(DOC,"sitio1")
-backUP(DOC2,"sitio2")
-exportSiteConfig(IP,DOC,DOC2)
-print("\nSe termino de enviar los archivos de configuracion.")
+result = pat.match(ipServidorNuevo)
+if result == None:
+	print('\t[!] La direccion IP es invalida.\n')
+	flag = True
+DOC = configuracionsitio1
+if os.path.isfile(DOC) == False:
+    print("\t[!] La ruta para el archivo de configuracion del sitio1 no es valida o no se encuentra\n")
+    flag = True
+DOC2 = configuracionsitio1
+if os.path.isfile(DOC2) == False:
+    print("\t[!] La ruta para el archivo de configuracion del sitio2 no es valida o no se encuentra\n")
+    flag = True
+if os.path.isfile(ubicacionHtaccessSitio1) == False:
+    print("\t[!] La ruta para el archivo .htaccess del sitio1 no es valida o no se encuentra\n")
+    flag = True
+if os.path.isfile(ubicacionHtaccessSitio2) == False:
+    print("\t[!] La ruta para no el archivo .htaccess del sitio2 no es valida o no se encuentra\n")
+    flag = True
+if os.path.isfile(confifuracionApache) == False:
+    print("\t[!] La ruta para el archivo de configuracion de apache no es valida o no se encuentra\n")
+    flag = True
+if flag :
+	sys.exit()
+verificandoDrush()
+verificandoGit()
+backUP(DOC,"sitio 1")
+backUP(DOC2,"sitio 2")
+exportSiteConfig()
+print("\t [*] Se termino de enviar los archivos de configuracion.De manera exitosa puede continuar con el proceso en el nuevo servidor.")
